@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { ProjectCard } from '../components/projects/ProjectCard';

@@ -104,7 +104,7 @@ export function EditTaskModal({
           label="Task Title"
           name="title"
           required
-          defaultValue={task?.title}
+          defaultValue={task?.title || ''}
           placeholder="Enter task title"
         />
         
