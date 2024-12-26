@@ -72,7 +72,7 @@ export function EditTaskModal({
           title: formData.get('title') as string,
           context: formData.get('context') as string,
           completion_notes: formData.get('notes') as string,
-          reference_image_url: reference_image_url === null ? undefined : reference_image_url,
+          reference_image_url: reference_image_url ?? undefined,
         })
         .eq('id', task.id)
         .select()
@@ -148,7 +148,7 @@ export function EditTaskModal({
           {(imagePreview || task?.reference_image_url) && (
             <div className="mt-2">
               <img
-                src={imagePreview || task?.reference_image_url}
+                src={imagePreview ?? task?.reference_image_url ?? ''}
                 alt="Preview"
                 className="rounded-md max-h-48 object-contain"
               />
