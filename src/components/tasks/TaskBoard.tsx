@@ -8,7 +8,6 @@ import { Database } from '../../types/supabase';
 import './TaskBoard.css';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import type { DropResult } from 'react-beautiful-dnd';
 
 type Task = Database['public']['Tables']['tasks']['Row'];
 

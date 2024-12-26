@@ -72,7 +72,7 @@ export function EditTaskModal({
           title: formData.get('title') as string,
           context: formData.get('context') as string,
           completion_notes: formData.get('notes') as string,
-          reference_image_url,
+          reference_image_url: reference_image_url || undefined,
         })
         .eq('id', task.id)
         .select()
