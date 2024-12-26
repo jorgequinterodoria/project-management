@@ -7,6 +7,8 @@ import { EditTaskModal } from './EditTaskModal';
 import { supabase } from '../../lib/supabase';
 import { Database } from '../../types/supabase';
 import './TaskBoard.css';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 type Task = Database['public']['Tables']['tasks']['Row'];
 
@@ -80,33 +82,58 @@ export function TaskBoard({ projectId, tasks, setTasks }: TaskBoardProps) {
     ));
   };
 
+  const handleDrop = async (taskId: string, newStatus: Task['status']) => {
+    const updatedTasks = Array.from(tasks);
+    const taskIndex = updatedTasks.findIndex(t => t.id === taskId);
+    const task = updatedTasks[taskIndex];
+
+    if (task.status === newStatus) return;
+
+    task.status = newStatus;
+    setTasks(updatedTasks);
+
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ status: newStatus })
+        .eq('id', taskId);
+
+      if (error) throw error;
+    } catch (error) {
+      toast.error('Failed to update task');
+      console.error('Error:', error);
+      setTasks(tasks); // revert on error
+    }
+  };
+
   return (
-    <>
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="flex space-x-4 overflow-x-auto pb-4">
-          <TaskColumn
-            id="todo"
-            title="To Do"
-            tasks={columns.todo}
-            onAddTask={() => setIsCreateModalOpen(true)}
-            onTaskClick={setSelectedTask}
-          />
-          <TaskColumn
-            id="in_progress"
-            title="In Progress"
-            tasks={columns.in_progress}
-            onAddTask={() => setIsCreateModalOpen(true)}
-            onTaskClick={setSelectedTask}
-          />
-          <TaskColumn
-            id="completed"
-            title="Completed"
-            tasks={columns.completed}
-            onAddTask={() => setIsCreateModalOpen(true)}
-            onTaskClick={setSelectedTask}
-          />
-        </div>
-      </DragDropContext>
+    <DndProvider backend={HTML5Backend}>
+      <div className="flex space-x-4 overflow-x-auto pb-4">
+        <TaskColumn
+          id="todo"
+          title="To Do"
+          tasks={columns.todo}
+          onAddTask={() => setIsCreateModalOpen(true)}
+          onTaskClick={setSelectedTask}
+          onDrop={handleDrop}
+        />
+        <TaskColumn
+          id="in_progress"
+          title="In Progress"
+          tasks={columns.in_progress}
+          onAddTask={() => setIsCreateModalOpen(true)}
+          onTaskClick={setSelectedTask}
+          onDrop={handleDrop}
+        />
+        <TaskColumn
+          id="completed"
+          title="Completed"
+          tasks={columns.completed}
+          onAddTask={() => setIsCreateModalOpen(true)}
+          onTaskClick={setSelectedTask}
+          onDrop={handleDrop}
+        />
+      </div>
 
       <CreateTaskModal
         isOpen={isCreateModalOpen}
@@ -121,6 +148,6 @@ export function TaskBoard({ projectId, tasks, setTasks }: TaskBoardProps) {
         task={selectedTask}
         onTaskUpdated={handleTaskUpdate}
       />
-    </>
+    </DndProvider>
   );
 }

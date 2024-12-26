@@ -1,13 +1,27 @@
 .dragging {
   opacity: 0.5;
+  cursor: grabbing !important;
+}
+
+.task-card {
+  cursor: move; /* fallback if grab cursor is unsupported */
+  cursor: grab;
+  touch-action: none;
+}
+
+.task-card:active {
   cursor: grabbing;
 }
 
-.droppable {
-  min-height: 100px;
-  transition: background-color 0.2s ease;
+.column-drop-target {
+  transition: all 0.2s ease;
 }
 
-.droppable.dragging-over {
-  background-color: rgba(0, 0, 0, 0.05);
+.column-drop-target.can-drop {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.column-drop-target.is-over {
+  background-color: rgba(59, 130, 246, 0.2);
+  ring: 2px inset rgb(59, 130, 246);
 } 
