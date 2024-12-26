@@ -51,23 +51,19 @@ export function EditTaskModal({
       // Upload image if there's a new one
       if (imageFile) {
         const fileExt = imageFile.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `${task.id}/${fileName}`;
+        const fileName = `task-images/${Math.random()}.${fileExt}`;
 
-        const { error: uploadError, data } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from('task-assets')
-          .upload(filePath, imageFile, {
+          .upload(fileName, imageFile, {
             cacheControl: '3600',
             upsert: true
           });
 
         if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('task-assets')
-          .getPublicUrl(filePath);
-
-        reference_image_url = publicUrl;
+        // Guardar la ruta completa relativa al bucket
+        reference_image_url = fileName;
       }
 
       const { data, error } = await supabase

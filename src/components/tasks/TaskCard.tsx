@@ -3,6 +3,8 @@ import { Image as ImageIcon, MessageSquare, Edit2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Card } from '../ui/Card';
 import { Database } from '../../types/supabase';
+import { useEffect, useState } from 'react';
+import { supabase } from '../../lib/supabase';
 
 type Task = Database['public']['Tables']['tasks']['Row'];
 
@@ -25,6 +27,32 @@ export function TaskCard({ task, index, onClick }: TaskCardProps) {
       isDragging: monitor.isDragging()
     })
   }), [task.id, task.status, index]);
+
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function getImageUrl() {
+      if (task.reference_image_url) {
+        try {
+          const { data, error } = await supabase
+            .storage
+            .from('task-assets')
+            .createSignedUrl(task.reference_image_url, 3600);
+
+          if (error) {
+            console.error('Error getting signed URL:', error);
+            return;
+          }
+
+          setImageUrl(data.signedUrl);
+        } catch (error) {
+          console.error('Error loading image:', error);
+        }
+      }
+    }
+
+    getImageUrl();
+  }, [task.reference_image_url]);
 
   return (
     <div
@@ -51,12 +79,12 @@ export function TaskCard({ task, index, onClick }: TaskCardProps) {
           
           <p className="mt-1 text-sm text-gray-600 line-clamp-2">{task.context}</p>
           
-          {task.reference_image_url && (
+          {task.reference_image_url && imageUrl && (
             <div className="mt-2">
-              <img 
-                src={task.reference_image_url} 
-                alt="Reference"
-                className="rounded-md w-full h-32 object-cover"
+              <img
+                src={imageUrl}
+                alt="Task reference"
+                className="rounded-md object-cover"
               />
             </div>
           )}
